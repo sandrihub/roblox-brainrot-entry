@@ -1,10 +1,10 @@
 {
-  "name": "house-dodge",
+  "name": "brainrot-bazaar",
   "tree": {
     "$className": "DataModel",
     "Players": {
       "$properties": {
-        "CharacterAutoLoads": false
+        "CharacterAutoLoads": true
       }
     },
     "ServerScriptService": {
@@ -22,39 +22,23 @@
     "Workspace": {
       "$properties": {
         "FilteringEnabled": true
-      },
-      "Baseplate": {
-        "$className": "Part",
-        "$properties": {
-          "Anchored": true,
-          "Color": [
-            0.38823,
-            0.37254,
-            0.38823
-          ],
-          "Locked": true,
-          "Position": [
-            0,
-            -10,
-            0
-          ],
-          "Size": [
-            512,
-            20,
-            512
-          ]
-        }
       }
     },
     "Lighting": {
       "$properties": {
         "Ambient": [
-          0,
-          0,
-          0
+          0.38,
+          0.34,
+          0.45
         ],
         "Brightness": 2,
+        "ClockTime": 14,
         "GlobalShadows": true,
+        "OutdoorAmbient": [
+          0.48,
+          0.42,
+          0.5
+        ],
         "Outlines": false,
         "Technology": "Voxel"
       }
