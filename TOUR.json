@@ -1,0 +1,45 @@
+{
+  "title": "Rot Rush: Neon Snacklands",
+  "genre": "3D collectible tycoon",
+  "elevator_pitch": "Build a brainrot collection on a glowing market plot, bank its passive income, and dodge the glitch ring while climbing six rarity tiers.",
+  "first_five_minutes": [
+    "Claim the plot where you spawn and read the four empty collection pads.",
+    "Open the HUD shop or walk to the market; buy an affordable Common or Uncommon creature.",
+    "Watch it appear on your plot and begin generating unbanked cash each second.",
+    "Collect the balance, buy another creature, and purchase an income upgrade.",
+    "Cross the hazard ring to browse a higher-tier restock, then return to your plot."
+  ],
+  "systems": [
+    {
+      "name": "Plot economy",
+      "source": "src/server/init.server.luau",
+      "details": "Twelve player plots have four server-owned creature pads, unbanked passive earnings, and a persistent wallet."
+    },
+    {
+      "name": "Rotating rarity market",
+      "source": "src/server/init.server.luau",
+      "details": "Three offers rotate through six original brainrots from Common to Mythic. Server checks prices and inventory."
+    },
+    {
+      "name": "Progression",
+      "source": "src/server/init.server.luau",
+      "details": "Cash buys an income multiplier upgrade; rebirth trades a large balance for a permanent income bonus."
+    },
+    {
+      "name": "Glitch ring",
+      "source": "src/server/init.server.luau",
+      "details": "A neon hazard circle damages players who cross carelessly between the market and the outer plots."
+    },
+    {
+      "name": "HUD",
+      "source": "src/client/Game.client.luau",
+      "details": "A responsive ScreenGui shows money, pending cash, income, market stock, upgrades, rebirth, and collection pads."
+    }
+  ],
+  "source_order": [
+    "main.ts",
+    "default.project.json",
+    "src/server/init.server.luau",
+    "src/client/Game.client.luau"
+  ]
+}
