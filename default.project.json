@@ -1,0 +1,40 @@
+{
+  "name": "neon-nonsense",
+  "tree": {
+    "$className": "DataModel",
+    "Players": {
+      "$properties": {
+        "CharacterAutoLoads": true
+      }
+    },
+    "ServerScriptService": {
+      "Server": {
+        "$path": "src/server"
+      }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "Client": {
+          "$path": "src/client"
+        }
+      }
+    },
+    "Lighting": {
+      "$properties": {
+        "Ambient": [0.18, 0.13, 0.32],
+        "Brightness": 2.5,
+        "ClockTime": 20,
+        "EnvironmentDiffuseScale": 0.35,
+        "EnvironmentSpecularScale": 0.45,
+        "GlobalShadows": true,
+        "OutdoorAmbient": [0.26, 0.2, 0.42],
+        "Technology": "ShadowMap"
+      }
+    },
+    "SoundService": {
+      "$properties": {
+        "RespectFilteringEnabled": true
+      }
+    }
+  }
+}
