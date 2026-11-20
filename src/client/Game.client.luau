@@ -1,19 +1,33 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
-local remotes = ReplicatedStorage:WaitForChild("BrainrotRemotes")
+local remotes = ReplicatedStorage:WaitForChild("NonsenseRemotes")
 local actionRemote = remotes:WaitForChild("Action")
 local stateRemote = remotes:WaitForChild("State")
 
-local colors = {
-	ink = Color3.fromRGB(41, 31, 57),
-	panel = Color3.fromRGB(255, 247, 224),
-	orange = Color3.fromRGB(255, 139, 62),
-	green = Color3.fromRGB(63, 180, 118),
-	cream = Color3.fromRGB(255, 253, 245),
-	muted = Color3.fromRGB(122, 105, 121),
+local palette = {
+	ink = Color3.fromRGB(28, 29, 52),
+	panel = Color3.fromRGB(242, 240, 250),
+	cream = Color3.fromRGB(255, 253, 248),
+	muted = Color3.fromRGB(111, 111, 138),
+	cyan = Color3.fromRGB(71, 197, 197),
+	gold = Color3.fromRGB(245, 188, 76),
+	pink = Color3.fromRGB(221, 100, 147),
+	purple = Color3.fromRGB(125, 107, 199),
+	green = Color3.fromRGB(65, 165, 117),
+}
+
+local rarityColors = {
+	COMMON = Color3.fromRGB(109, 124, 134),
+	UNCOMMON = Color3.fromRGB(63, 154, 98),
+	RARE = Color3.fromRGB(68, 126, 202),
+	EPIC = Color3.fromRGB(150, 88, 192),
+	LEGENDARY = Color3.fromRGB(221, 139, 43),
+	MYTHIC = Color3.fromRGB(208, 77, 116),
+	CELESTIAL = Color3.fromRGB(93, 159, 211),
 }
 
 local function corner(instance, radius)
@@ -22,96 +36,150 @@ local function corner(instance, radius)
 	ui.Parent = instance
 end
 
-local function stroke(instance, color, thickness)
+local function outline(instance, color, thickness, transparency)
 	local ui = Instance.new("UIStroke")
-	ui.Color = color or colors.ink
+	ui.Color = color or palette.ink
 	ui.Thickness = thickness or 2
+	ui.Transparency = transparency or 0
 	ui.Parent = instance
 end
 
-local function label(parent, text, size, position, font, color)
-	local control = Instance.new("TextLabel")
-	control.BackgroundTransparency = 1
-	control.Size = size
-	control.Position = position
-	control.Text = text
-	control.TextColor3 = color or colors.ink
-	control.Font = font or Enum.Font.GothamBold
-	control.TextSize = 16
-	control.TextXAlignment = Enum.TextXAlignment.Left
-	control.TextWrapped = true
-	control.Parent = parent
-	return control
+local function textLabel(parent, text, size, position, font, color, textSize)
+	local label = Instance.new("TextLabel")
+	label.BackgroundTransparency = 1
+	label.Size = size
+	label.Position = position
+	label.Text = text
+	label.TextColor3 = color or palette.ink
+	label.Font = font or Enum.Font.GothamBold
+	label.TextSize = textSize or 15
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.TextWrapped = true
+	label.Parent = parent
+	return label
 end
 
-local function button(parent, text, size, position, background)
-	local control = Instance.new("TextButton")
-	control.Size = size
-	control.Position = position
-	control.BackgroundColor3 = background or colors.orange
-	control.Text = text
-	control.TextColor3 = colors.cream
-	control.Font = Enum.Font.GothamBlack
-	control.TextSize = 15
-	control.TextWrapped = true
-	control.AutoButtonColor = true
-	control.Parent = parent
-	corner(control, 12)
-	return control
+local function makeButton(parent, text, size, position, color)
+	local button = Instance.new("TextButton")
+	button.Size = size
+	button.Position = position
+	button.BackgroundColor3 = color or palette.cyan
+	button.Text = text
+	button.TextColor3 = palette.cream
+	button.Font = Enum.Font.GothamBlack
+	button.TextSize = 14
+	button.TextWrapped = true
+	button.AutoButtonColor = true
+	button.Parent = parent
+	corner(button, 12)
+	outline(button, Color3.fromRGB(37, 39, 67), 1.5, 0.1)
+	return button
 end
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "BrainrotBazaarUI"
+gui.Name = "NeonNonsenseHUD"
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = false
 gui.DisplayOrder = 20
 
+local uiScale = Instance.new("UIScale")
+uiScale.Parent = gui
+
+local function updateScale()
+	local camera = Workspace.CurrentCamera
+	if camera then
+		local viewport = camera.ViewportSize
+		uiScale.Scale = math.clamp(math.min(viewport.X / 1120, viewport.Y / 760), 0.68, 1)
+	end
+end
+
+updateScale()
+if Workspace.CurrentCamera then
+	Workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(updateScale)
+end
+Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(updateScale)
+
 local panel = Instance.new("Frame")
-panel.Name = "MainPanel"
+panel.Name = "TycoonPanel"
 panel.AnchorPoint = Vector2.new(0, 0.5)
 panel.Position = UDim2.new(0, 18, 0.5, 0)
-panel.Size = UDim2.new(0, 360, 0.86, 0)
-panel.BackgroundColor3 = colors.panel
+panel.Size = UDim2.new(0, 366, 0.9, 0)
+panel.BackgroundColor3 = palette.panel
 panel.Parent = gui
 corner(panel, 22)
-stroke(panel, colors.ink, 3)
+outline(panel, palette.ink, 3)
 
-local top = Instance.new("Frame")
-top.Size = UDim2.new(1, 0, 0, 94)
-top.BackgroundColor3 = colors.orange
-top.Parent = panel
-corner(top, 20)
+local header = Instance.new("Frame")
+header.Name = "Header"
+header.Size = UDim2.new(1, 0, 0, 96)
+header.BackgroundColor3 = palette.ink
+header.Parent = panel
+corner(header, 20)
+local headerGradient = Instance.new("UIGradient")
+headerGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(52, 48, 96)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 124, 136)),
+})
+headerGradient.Rotation = 18
+headerGradient.Parent = header
 
-local title = label(top, "BRAINROT\nBAZAAR", UDim2.new(0.65, 0, 0, 62), UDim2.new(0, 16, 0, 8), Enum.Font.GothamBlack, colors.cream)
-title.TextSize = 24
-local plotLabel = label(top, "PLOT --", UDim2.new(0.32, -8, 0, 40), UDim2.new(0.66, 0, 0, 27), Enum.Font.GothamBlack, Color3.fromRGB(255, 240, 156))
-plotLabel.TextSize = 17
-plotLabel.TextXAlignment = Enum.TextXAlignment.Right
+local title = textLabel(header, "NEON\nNONSENSE", UDim2.new(0.65, 0, 0, 66), UDim2.new(0, 16, 0, 9), Enum.Font.GothamBlack, palette.cream, 25)
+title.TextYAlignment = Enum.TextYAlignment.Center
+local titleTag = textLabel(header, "ODDITY TYCOON", UDim2.new(0.65, 0, 0, 17), UDim2.new(0, 17, 0, 74), Enum.Font.GothamBold, Color3.fromRGB(156, 239, 230), 10)
+local plotTag = textLabel(header, "PLOT --", UDim2.new(0.32, -8, 0, 42), UDim2.new(0.66, 0, 0, 26), Enum.Font.GothamBlack, Color3.fromRGB(255, 222, 130), 16)
+plotTag.TextXAlignment = Enum.TextXAlignment.Right
 
-local cash = label(panel, "$0", UDim2.new(0.52, -18, 0, 38), UDim2.new(0, 16, 0, 104), Enum.Font.GothamBlack, colors.green)
-cash.TextSize = 28
-local income = label(panel, "+$0 / sec", UDim2.new(0.44, -12, 0, 36), UDim2.new(0.54, 0, 0, 106), Enum.Font.GothamBlack, colors.ink)
-income.TextSize = 16
-income.TextXAlignment = Enum.TextXAlignment.Right
+local stats = Instance.new("Frame")
+stats.Name = "Stats"
+stats.BackgroundTransparency = 1
+stats.Position = UDim2.new(0, 14, 0, 105)
+stats.Size = UDim2.new(1, -28, 0, 62)
+stats.Parent = panel
 
-local collectButton = button(panel, "COLLECT ALL", UDim2.new(1, -28, 0, 48), UDim2.new(0, 14, 0, 150), colors.green)
-collectButton.TextSize = 18
-local hint = label(panel, "Your goobers cook up cash. Walk up and press E to collect or swipe!", UDim2.new(1, -30, 0, 42), UDim2.new(0, 16, 0, 204), Enum.Font.GothamMedium, colors.muted)
-hint.TextSize = 13
-hint.TextYAlignment = Enum.TextYAlignment.Top
+local cashCard = Instance.new("Frame")
+cashCard.Size = UDim2.new(0.53, -4, 1, 0)
+cashCard.BackgroundColor3 = palette.cream
+cashCard.Parent = stats
+corner(cashCard, 13)
 
-local shopTitle = label(panel, "THE SUS SHOP  /  BRAINROT RARITIES", UDim2.new(1, -28, 0, 24), UDim2.new(0, 16, 0, 249), Enum.Font.GothamBlack, colors.ink)
-shopTitle.TextSize = 13
+local cashCaption = textLabel(cashCard, "WALLET", UDim2.new(1, -18, 0, 16), UDim2.new(0, 10, 0, 6), Enum.Font.GothamBlack, palette.muted, 10)
+local cashLabel = textLabel(cashCard, "$0", UDim2.new(1, -18, 0, 33), UDim2.new(0, 10, 0, 23), Enum.Font.GothamBlack, palette.green, 22)
+
+local incomeCard = Instance.new("Frame")
+incomeCard.Position = UDim2.new(0.53, 4, 0, 0)
+incomeCard.Size = UDim2.new(0.47, -4, 1, 0)
+incomeCard.BackgroundColor3 = Color3.fromRGB(225, 246, 240)
+incomeCard.Parent = stats
+corner(incomeCard, 13)
+
+local incomeCaption = textLabel(incomeCard, "PASSIVE FLOW", UDim2.new(1, -16, 0, 16), UDim2.new(0, 9, 0, 6), Enum.Font.GothamBlack, palette.muted, 10)
+local incomeLabel = textLabel(incomeCard, "+$0 / SEC", UDim2.new(1, -16, 0, 33), UDim2.new(0, 9, 0, 23), Enum.Font.GothamBlack, palette.ink, 16)
+
+local collectButton = makeButton(panel, "COLLECT ALL  •  $0", UDim2.new(1, -28, 0, 47), UDim2.new(0, 14, 0, 176), palette.green)
+collectButton.TextSize = 16
+
+local statusCard = Instance.new("Frame")
+statusCard.Name = "Status"
+statusCard.Position = UDim2.new(0, 14, 0, 231)
+statusCard.Size = UDim2.new(1, -28, 0, 55)
+statusCard.BackgroundColor3 = Color3.fromRGB(231, 231, 245)
+statusCard.Parent = panel
+corner(statusCard, 12)
+local statusLabel = textLabel(statusCard, "Your oddities are earning. Protect your vault.", UDim2.new(1, -20, 1, -10), UDim2.new(0, 10, 0, 5), Enum.Font.GothamBold, palette.ink, 12)
+statusLabel.TextYAlignment = Enum.TextYAlignment.Center
+
+local shopTitle = textLabel(panel, "ODDITY EXCHANGE  /  RARITY LADDER", UDim2.new(1, -28, 0, 24), UDim2.new(0, 16, 0, 296), Enum.Font.GothamBlack, palette.ink, 12)
 
 local shop = Instance.new("ScrollingFrame")
-shop.Name = "ShopItems"
-shop.Position = UDim2.new(0, 14, 0, 278)
-shop.Size = UDim2.new(1, -28, 1, -416)
-shop.BackgroundColor3 = colors.cream
+shop.Name = "RarityShop"
+shop.Position = UDim2.new(0, 14, 0, 324)
+shop.Size = UDim2.new(1, -28, 1, -453)
+shop.BackgroundColor3 = palette.cream
 shop.BorderSizePixel = 0
-shop.ScrollBarThickness = 6
-shop.CanvasSize = UDim2.new()
+shop.ScrollBarThickness = 5
+shop.ScrollBarImageColor3 = palette.purple
 shop.AutomaticCanvasSize = Enum.AutomaticSize.Y
+shop.CanvasSize = UDim2.new()
 shop.Parent = panel
 corner(shop, 14)
 
@@ -119,6 +187,7 @@ local shopLayout = Instance.new("UIListLayout")
 shopLayout.Padding = UDim.new(0, 7)
 shopLayout.SortOrder = Enum.SortOrder.LayoutOrder
 shopLayout.Parent = shop
+
 local shopPadding = Instance.new("UIPadding")
 shopPadding.PaddingTop = UDim.new(0, 8)
 shopPadding.PaddingBottom = UDim.new(0, 8)
@@ -126,26 +195,37 @@ shopPadding.PaddingLeft = UDim.new(0, 8)
 shopPadding.PaddingRight = UDim.new(0, 8)
 shopPadding.Parent = shop
 
-local upgradeButton = button(panel, "UPGRADE LAB", UDim2.new(0.48, -12, 0, 48), UDim2.new(0, 14, 1, -112), Color3.fromRGB(111, 103, 202))
-local rebirthButton = button(panel, "REBIRTH x2", UDim2.new(0.48, -12, 0, 48), UDim2.new(0.52, -2, 1, -112), Color3.fromRGB(199, 80, 146))
-local bottomLine = label(panel, "Upgrade boosts income  |  Rebirth doubles it", UDim2.new(1, -28, 0, 24), UDim2.new(0, 16, 1, -56), Enum.Font.GothamBold, colors.muted)
-bottomLine.TextSize = 12
+local actions = Instance.new("Frame")
+actions.Name = "TycoonActions"
+actions.BackgroundTransparency = 1
+actions.Position = UDim2.new(0, 14, 1, -116)
+actions.Size = UDim2.new(1, -28, 0, 50)
+actions.Parent = panel
+
+local shieldButton = makeButton(actions, "LOCK VAULT", UDim2.new(0.333, -7, 1, 0), UDim2.new(0, 0, 0, 0), Color3.fromRGB(55, 159, 183))
+local upgradeButton = makeButton(actions, "UPGRADE", UDim2.new(0.333, -7, 1, 0), UDim2.new(0.333, 4, 0, 0), palette.purple)
+local rebirthButton = makeButton(actions, "REBIRTH", UDim2.new(0.333, -7, 1, 0), UDim2.new(0.666, 8, 0, 0), palette.pink)
+shieldButton.TextSize = 11
+upgradeButton.TextSize = 11
+rebirthButton.TextSize = 11
+
+local footer = textLabel(panel, "E COLLECTS OR SWIPES  •  LEAVE RIVALS ONE ODDITY", UDim2.new(1, -28, 0, 20), UDim2.new(0, 16, 1, -57), Enum.Font.GothamBold, palette.muted, 9)
+footer.TextXAlignment = Enum.TextXAlignment.Center
 
 local toast = Instance.new("TextLabel")
-toast.Name = "Toast"
+toast.Name = "FeedbackToast"
 toast.AnchorPoint = Vector2.new(0.5, 0)
-toast.Position = UDim2.new(0.5, 0, 0, 24)
-toast.Size = UDim2.new(0, 480, 0, 52)
-toast.BackgroundColor3 = colors.ink
-toast.BackgroundTransparency = 0.05
-toast.TextColor3 = colors.cream
+toast.Position = UDim2.new(0.5, 0, 0, 22)
+toast.Size = UDim2.new(0, 500, 0, 50)
+toast.BackgroundColor3 = palette.ink
+toast.TextColor3 = palette.cream
 toast.Font = Enum.Font.GothamBlack
-toast.TextSize = 17
+toast.TextSize = 16
 toast.TextWrapped = true
 toast.Visible = false
 toast.Parent = gui
 corner(toast, 14)
-stroke(toast, colors.orange, 2)
+outline(toast, palette.gold, 2)
 
 local previousMessage = ""
 local function showMessage(message)
@@ -156,99 +236,129 @@ local function showMessage(message)
 	toast.Text = message
 	toast.Visible = true
 	toast.TextTransparency = 0
-	toast.BackgroundTransparency = 0.05
-	task.delay(3.2, function()
-		if toast.Parent and toast.Text == message then
-			local fade = TweenService:Create(toast, TweenInfo.new(0.35), { TextTransparency = 1, BackgroundTransparency = 1 })
-			fade:Play()
-			fade.Completed:Wait()
-			if toast.Text == message then
-				toast.Visible = false
-			end
+	toast.BackgroundTransparency = 0.04
+	task.delay(3, function()
+		if not toast.Parent or toast.Text ~= message then
+			return
+		end
+		local fade = TweenService:Create(toast, TweenInfo.new(0.3), { TextTransparency = 1, BackgroundTransparency = 1 })
+		fade:Play()
+		fade.Completed:Wait()
+		if toast.Text == message then
+			toast.Visible = false
 		end
 	end)
 end
 
-local rarityColors = {
-	COMMON = Color3.fromRGB(95, 116, 121),
-	UNCOMMON = Color3.fromRGB(49, 157, 83),
-	RARE = Color3.fromRGB(65, 126, 213),
-	EPIC = Color3.fromRGB(160, 84, 191),
-	LEGENDARY = Color3.fromRGB(223, 134, 31),
-	MYTHIC = Color3.fromRGB(209, 69, 104),
-}
+local shopRows = {}
+local shopSignature = ""
 
-local lastShopSignature = ""
-
-local function makeShopRow(item, index, state)
-	local row = Instance.new("Frame")
-	row.Name = item.id
-	row.LayoutOrder = index
-	row.Size = UDim2.new(1, -4, 0, 56)
-	row.BackgroundColor3 = colors.panel
-	row.Parent = shop
-	corner(row, 10)
-
-	local rarity = label(row, item.rarity, UDim2.new(0, 78, 0, 16), UDim2.new(0, 8, 0, 3), Enum.Font.GothamBlack, rarityColors[item.rarity] or colors.ink)
-	rarity.TextSize = 10
-	local name = label(row, item.name, UDim2.new(0.62, -6, 0, 23), UDim2.new(0, 8, 0, 19), Enum.Font.GothamBlack, colors.ink)
-	name.TextSize = 13
-	local rate = label(row, "+$" .. item.income .. "/s", UDim2.new(0, 72, 0, 18), UDim2.new(0, 8, 0, 37), Enum.Font.GothamBold, colors.green)
-	rate.TextSize = 11
-
-	local ownedCount = 0
-	for _, ownedItem in ipairs(state.owned) do
-		if ownedItem.id == item.id then
-			ownedCount += 1
+local function buildShop(state)
+	local signatureParts = {}
+	for _, item in ipairs(state.catalog) do
+		table.insert(signatureParts, item.id)
+	end
+	local signature = table.concat(signatureParts, ":")
+	if signature == shopSignature then
+		return
+	end
+	shopSignature = signature
+	shopRows = {}
+	for _, child in ipairs(shop:GetChildren()) do
+		if child:IsA("Frame") then
+			child:Destroy()
 		end
 	end
-	local buttonText = "$" .. item.cost
-	if #state.owned >= 8 then
-		buttonText = "PLOT FULL"
-	elseif state.cash < item.cost then
-		buttonText = "$" .. item.cost
+
+	for index, item in ipairs(state.catalog) do
+		local row = Instance.new("Frame")
+		row.Name = item.id
+		row.LayoutOrder = index
+		row.Size = UDim2.new(1, -4, 0, 59)
+		row.BackgroundColor3 = palette.panel
+		row.Parent = shop
+		corner(row, 10)
+
+		local rarity = textLabel(row, item.rarity, UDim2.new(0, 94, 0, 15), UDim2.new(0, 9, 0, 3), Enum.Font.GothamBlack, rarityColors[item.rarity] or palette.ink, 9)
+		local name = textLabel(row, item.name, UDim2.new(1, -133, 0, 21), UDim2.new(0, 9, 0, 17), Enum.Font.GothamBlack, palette.ink, 12)
+		local rate = textLabel(row, "+$" .. item.income .. " / sec", UDim2.new(1, -133, 0, 17), UDim2.new(0, 9, 0, 38), Enum.Font.GothamBold, palette.green, 10)
+		local buy = makeButton(row, "$" .. item.cost, UDim2.new(0, 104, 0, 40), UDim2.new(1, -112, 0, 9), rarityColors[item.rarity] or palette.purple)
+		buy.TextSize = 11
+		buy.Activated:Connect(function()
+			actionRemote:FireServer({ action = "buy", item = item.id })
+		end)
+		shopRows[item.id] = { buy = buy, item = item }
 	end
-	local buy = button(row, buttonText, UDim2.new(0, 104, 0, 38), UDim2.new(1, -112, 0, 9), rarityColors[item.rarity])
-	buy.TextSize = 13
-	if ownedCount > 0 then
-		buy.Text = buttonText .. "\nOWNED " .. ownedCount
-		buy.TextSize = 10
-	end
-	buy.Activated:Connect(function()
-		actionRemote:FireServer({ action = "buy", item = item.id })
-	end)
+end
+
+local function formatCash(value)
+	local reversed = string.reverse(tostring(math.max(0, math.floor(value))))
+	reversed = string.gsub(reversed, "(%d%d%d)", "%1,")
+	return "$" .. string.reverse(string.gsub(reversed, "^,", ""))
 end
 
 local function render(state)
-	cash.Text = "$" .. tostring(state.cash)
-	income.Text = "+$" .. tostring(state.income) .. " / sec"
-	plotLabel.Text = state.plot > 0 and ("PLOT " .. state.plot .. "  |  REBIRTH " .. state.rebirths) or "NO PLOT"
+	cashLabel.Text = formatCash(state.cash)
+	incomeLabel.Text = "+$" .. tostring(state.income) .. " / SEC"
+	plotTag.Text = state.plot > 0 and ("PLOT " .. string.format("%02d", state.plot) .. "  •  REBIRTH " .. state.rebirths) or "NO PLOT"
 
-	local signatureParts = { tostring(state.cash), tostring(#state.owned) }
+	local banked = state.bank or 0
+	local ownedCounts = {}
 	for _, ownedItem in ipairs(state.owned) do
-		table.insert(signatureParts, ownedItem.id)
+		banked += ownedItem.bank
+		ownedCounts[ownedItem.id] = (ownedCounts[ownedItem.id] or 0) + 1
 	end
-	local shopSignature = table.concat(signatureParts, ":")
-	if shopSignature ~= lastShopSignature then
-		lastShopSignature = shopSignature
-		for _, child in ipairs(shop:GetChildren()) do
-			if child:IsA("Frame") then
-				child:Destroy()
-			end
-		end
-		for index, item in ipairs(state.catalog) do
-			makeShopRow(item, index, state)
-		end
+	collectButton.Text = "COLLECT ALL  •  " .. formatCash(banked)
+
+	if state.shieldRemaining > 0 then
+		statusLabel.Text = "VAULT SHIELDED  •  " .. state.shieldRemaining .. "s safe  •  " .. #state.owned .. " / 8 oddities"
+		statusCard.BackgroundColor3 = Color3.fromRGB(213, 244, 249)
+	elseif state.shieldCooldown > 0 then
+		statusLabel.Text = "VAULT OPEN  •  lock recharges in " .. state.shieldCooldown .. "s  •  " .. #state.owned .. " / 8 oddities"
+		statusCard.BackgroundColor3 = Color3.fromRGB(240, 233, 244)
+	else
+		statusLabel.Text = "VAULT OPEN  •  rivals can swipe  •  " .. #state.owned .. " / 8 oddities"
+		statusCard.BackgroundColor3 = Color3.fromRGB(231, 231, 245)
 	end
 
-	local upgradeCost = 600 * (2 ^ state.upgrades)
-	upgradeButton.Text = state.upgrades >= 5 and "LAB MAXED" or ("UPGRADE LAB\n$" .. upgradeCost .. "  |  LV " .. state.upgrades)
-	rebirthButton.Text = state.rebirths >= 6 and "REBIRTH MAXED" or ("REBIRTH x2\n$25K + 5 GOOBERS  |  " .. state.rebirths .. "/6")
+	buildShop(state)
+	for id, row in pairs(shopRows) do
+		local count = ownedCounts[id] or 0
+		local affordable = state.cash >= row.item.cost and #state.owned < 8
+		if #state.owned >= 8 then
+			row.buy.Text = "DISPLAY FULL"
+		elseif count > 0 then
+			row.buy.Text = "OWNED " .. count .. "\n" .. formatCash(row.item.cost)
+		else
+			row.buy.Text = formatCash(row.item.cost)
+		end
+		row.buy.Active = affordable
+		row.buy.AutoButtonColor = affordable
+		row.buy.BackgroundTransparency = affordable and 0 or 0.38
+	end
+
+	if state.shieldRemaining > 0 then
+		shieldButton.Text = "SHIELDED\n" .. state.shieldRemaining .. "s"
+	elseif state.shieldCooldown > 0 then
+		shieldButton.Text = "RECHARGE\n" .. state.shieldCooldown .. "s"
+	else
+		shieldButton.Text = "LOCK VAULT\n18s SAFE"
+	end
+	shieldButton.Active = state.shieldRemaining == 0 and state.shieldCooldown == 0 and state.plot > 0
+	shieldButton.AutoButtonColor = shieldButton.Active
+	shieldButton.BackgroundTransparency = shieldButton.Active and 0 or 0.35
+
+	local upgradeCost = 800 * (2 ^ state.upgrades)
+	upgradeButton.Text = state.upgrades >= 5 and "LAB MAXED" or ("LAB +" .. (state.upgrades + 1) .. "\n" .. formatCash(upgradeCost))
+	rebirthButton.Text = state.rebirths >= 6 and "MAX REBIRTH" or ("REBIRTH x2\n" .. formatCash(35000) .. " + 5")
 	showMessage(state.message or "")
 end
 
 collectButton.Activated:Connect(function()
 	actionRemote:FireServer({ action = "collect" })
+end)
+shieldButton.Activated:Connect(function()
+	actionRemote:FireServer({ action = "shield" })
 end)
 upgradeButton.Activated:Connect(function()
 	actionRemote:FireServer({ action = "upgrade" })
